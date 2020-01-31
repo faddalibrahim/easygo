@@ -1,0 +1,39 @@
+comment well
+regex for frontend validation
+confirm email...done
+forgot password
+change password
+include config file after the if-statement of the $_POST['submit']
+consider using inc.php
+favicon
+
+
+
+show number of seats available
+how many seats to be taken
+prevent bookings when bus is full
+user can revoke booking
+users can also pay in advance we will be subracting bit by it then alert them when their money is almost finished
+
+
+sorting for admin--- see bookings according to those leaving campus
+    those coming to campus, time of takeoff, etc
+admins should be able to send message to a particular person
+revoke booking,close booking, extend booking number etc
+receipt/ticket generation for users
+
+
+a log
+---faddal revoked someones booking
+---czarina extended the booking time
+etc
+
+client-side validation
+
+
+DEPLOYMENT REMINDERS
+When deploying, use cdns for fontawesome and other dependenceies
+change url paths -- no localhost somewhere
+apply web optimization tips, like minifying, compressing images etc
+potential php errors such header errors
+no sensitive information should be uploaded

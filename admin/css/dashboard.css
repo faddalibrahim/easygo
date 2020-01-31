@@ -1,0 +1,185 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+
+/* body styles */
+body{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between; /*i have to apply a flex-grow: 1 to main to stretch it*/
+  background-color: #fff;
+  color: white;
+}
+
+/*header styles*/
+header{
+  background-color: #0072b1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem;
+  text-transform: uppercase;
+  list-style: none;
+}
+
+header span{
+  font-weight: 500;
+}
+
+header i{
+  color: white;
+}
+
+
+/* main content styles */
+main{
+  flex-grow: 1;
+  overflow-y: auto; /*in case any content overflows,we add a scroll*/
+  /*padding: none;*/
+  /*margin: none;*/
+  color: black;
+}
+
+main > div{
+  display: none; 
+}
+
+main > div:target{ /*displaying individual content them with :target pseudoclass*/
+  display: block;
+  opacity: 0;
+  -webkit-animation: fade-in 0.7s ease-in 1s 1 forwards;
+  -o-animation: fade-in 0.7s ease-in 1s 1 forwards;
+  animation: fade-in 0.7s ease-in 1s 1 forwards;
+}
+
+@keyframes fade-in{
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+.loader{
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  transform: translate(-45%,-45%);
+  display: none;
+
+ border: 0.2rem solid #0072b1;
+ border-bottom-color: transparent;
+ border-right-color: transparent;
+
+  -webkit-animation: rotate 0.5s linear 0s 2 normal both, loader-out 0.2s linear 1s 1 normal both;
+  -o-animation: rotate 0.5s linear 0s 2 normal both, loader-out 0.2s linear 1s 1 normal both;
+  animation: rotate 0.5s linear 0s 2 normal both, loader-out 0.2s linear 1s 1 normal both;
+}
+
+
+@keyframes rotate{
+  from{
+    transform: rotate(0deg);
+  }
+  to{
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-out{
+  from{
+    opacity: 1;
+  }
+  to{
+    opacity: 0;
+  }
+}
+
+
+/*navigation styles*/
+nav{
+  display: flex;
+  justify-content: space-between;
+  background-color: #0072b1;
+}
+
+nav a{
+  color: white;
+}
+
+nav a:hover{
+  background: white;
+  color: #0072b1;
+}
+
+nav a i{
+  padding: 0.8rem;
+}
+
+
+/* bookings */
+#bookings > div{
+  display: flex;
+  flex-flow: column;
+  padding: 1rem;
+}
+#bookings > div > div{
+  box-shadow: 0.001rem 0.001rem 0.5rem 0.1rem rgba(13,12,14,0.4);
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+
+
+
+
+
+
+@media screen and (min-width: 576px){
+ nav{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-flow: column;
+  background-color: white;
+ }
+
+ nav a{
+  border-right: 0.15rem solid #ccc;
+  color: #333 !important;
+  font-size: 1.5rem;
+  transition: all 0.3s ease-in-out;
+ }
+
+ nav a:hover{
+  border-color: #0072b1;
+  color: #0072b1 !important;
+ }
+
+ main > div{
+  width: 80vw;
+  background: #fff;
+  margin: 0 auto;
+ }
+
+  .clicked{
+    color: #0072b1 !important;
+    border-color: #0072b1;
+  }
+
+  #bookings{
+    width: 40vw;
+  }
+}
+
+
+
+
