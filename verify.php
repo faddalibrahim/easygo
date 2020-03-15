@@ -3,7 +3,6 @@
 
 	if(isset($_GET['token'])){
 		include 'admin/config/db_connect.php';
-		// include 'emailController.php';
 		
 		$token = $_GET['token'];
 		$sql = "SELECT * FROM user WHERE token='$token'";
@@ -14,7 +13,7 @@
 			$update_query = "UPDATE user SET verified='1' WHERE token='$token'";
 
 			if(mysqli_query($conn,$update_query)){
-				//log user in
+				session_start();
 				$_SESSION['user'] = $user['fullname'];
 				$_SESSION['verified'] = $user['verified'];
 				header('location: user/user_dashboard.php#bookings');

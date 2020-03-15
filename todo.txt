@@ -6,6 +6,7 @@ change password
 include config file after the if-statement of the $_POST['submit']
 consider using inc.php
 favicon
+remove composer.json
 
 
 

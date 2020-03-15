@@ -1,7 +1,4 @@
-<?php session_start() ?>
-
 <?php 
-
   $prompt = "";
 
   if(isset($_POST['signin'])){
@@ -19,6 +16,10 @@
       $result = mysqli_query($conn,$sql);
       $data = mysqli_num_rows($result);
 
+     
+     
+      // $admin_specified_number = 30;
+
       if($data < 1 ){
         $prompt = "invalid username or password";
       }
@@ -30,16 +31,33 @@
             $prompt = "invalid email or password";
           }
           elseif($hashed_password){
+            session_start();
             $_SESSION['user'] = $row['fullname'];
             $_SESSION['verified'] = $row['verified'];
+            // $_SESSION['bookingNumber'] = 40;
+            // $_SESSION['seatsAvailable'] = $total_seats - $seats_taken;
+
+
+            //checking if user is booked in order to decide whether to show booking form or cancel booking
+            //button on dashboard
+            $fullname = $row['fullname'];
+            $sql = "SELECT * FROM bookings WHERE fullname='$fullname'";
+            $result = mysqli_query($conn,$sql);
+            $data = mysqli_num_rows($result);
+
+          
+            if($data > 0){
+              $_SESSION['booked'] = true;
+            }else{
+              $_SESSION['booked'] = false;
+            }
+
             header('location: user_dashboard.php#bookings');
           }
         }
       }
     }
   }
-
-
  ?>
 
 

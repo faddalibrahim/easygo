@@ -1,19 +1,53 @@
 <?php session_start() ?>
-
 <?php 
-
-  if(!isset($_SESSION['user'])){
+  
+  //preventing user access to dashbaord if not logged in
+  if(!isset($_SESSION['user']) or !isset($_SESSION['verified'])){
     header('location: user_signin.php');
+  }else{
+    include '../admin/config/db_connect.php';
+    //getting admin specified number of seats to take
+    $sql2 = "SELECT * FROM admin_settings WHERE id=1";
+    $result2 = mysqli_query($conn,$sql2);
+    $total_seats = mysqli_fetch_assoc($result2)['total_seats'];
+
+    //getting number of seats taken from the bookings table to show on user dashboard
+    $sql1 = "SELECT * FROM bookings";
+    $result1 = mysqli_query($conn,$sql1);
+    $seats_taken = mysqli_num_rows($result1);
+
+
+    $_SESSION['seatsAvailable'] = $total_seats - $seats_taken;
+  }
+
+  //getting number of seats available
+ 
+
+ 
+  //cancelling a booking
+  if(isset($_GET['cancel'])){
+    include '../admin/config/db_connect.php';
+    $user = $_SESSION['user'];
+
+    $sql = "DELETE FROM bookings WHERE fullname='$user'";
+    $result = mysqli_query($conn,$sql);
+
+    if($result){
+      $_SESSION['booked'] = false;
+      $_SESSION['seatsAvailable'] += 1; //increase seats available
+      echo "<script>alert('booking is canceled')</script>";
+    }else{
+      echo "<script>alert('booking failed')</script>";
+    }
   }
 
 
 
-  if(isset($_POST['book'])){
-      // echo "<script>alert('it works like magiccc')</script>";
-    if(!empty($_POST['type']) or !empty($_POST['day']) or !empty($_POST['time']) or !empty($_POST['payment_method'])){
+  //booking a seat
+  if(isset($_GET['book'])){
+    if(!empty($_GET['type']) or !empty($_GET['location']) or !empty($_GET['day']) or !empty($_GET['time']) or !empty($_GET['payment_method'] or !empty($_GET['price']))){
       include '../admin/config/db_connect.php';
-
-      $fullname = $_SESSION['user'];
+      $fullname = mysqli_real_escape_string($conn,$_SESSION['user']);
 
       $sql = "SELECT * FROM bookings WHERE fullname='$fullname'";
       $result = mysqli_query($conn,$sql);
@@ -23,18 +57,21 @@
       if($data > 0){
         echo "<script>alert('you are already booked')</script>";
       }else{
-        $type = mysqli_real_escape_string($conn,$_POST['type']);
-        $day = mysqli_real_escape_string($conn,$_POST['day']);
-        $time = mysqli_real_escape_string($conn,$_POST['time']);
-        $payment_method = mysqli_real_escape_string($conn,$_POST['payment_method']);
+        $type = mysqli_real_escape_string($conn,$_GET['type']);
+        $location = mysqli_real_escape_string($conn,$_GET['location']);
+        $day = mysqli_real_escape_string($conn,$_GET['day']);
+        $time = mysqli_real_escape_string($conn,$_GET['time']);
+        $payment_method = mysqli_real_escape_string($conn,$_GET['payment_method']);
+        $price = mysqli_real_escape_string($conn,$_GET['price']);
 
-        $sql = "INSERT INTO bookings(fullname,type,day,timee,payment_method) VALUES('$fullname','$type','$day','$time','$payment_method')";
+        $sql = "INSERT INTO bookings(fullname,location,type,day,timee,payment_method,price) VALUES('$fullname','$location','$type','$day','$time','$payment_method','$price')";
 
         if(mysqli_query($conn,$sql)){
+          $_SESSION['booked'] = true;
+          $_SESSION['seatsAvailable'] -= 1; //reduce seats available
           echo "<script>alert('booking is recorded')</script>";
         }
       }
-
     } 
   }
  ?>
@@ -55,16 +92,23 @@
   <!-- <link href="../mdb/css/mdb.min.css" rel="stylesheet"> -->
   <!-- Your custom styles (optional) -->
   <link href="css/user_dashboard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   <!--Favicon-->
   <!-- <link rel="shortcut icon" type="image/png" href="img/favicon.png"/> -->
   <!-- <link rel="icon" type="image/ico" href="img/favicon.ico"/> -->
 </head>
 <style type="text/css">
+  *{
+    font-family: 'Roboto', sans-serif;
+  }
+
 
 
 </style>
 <body>
+
   
+  <!-- if user is verified, show dashboard else show email verification prompt -->
   <?php if(isset($_SESSION['verified']) and $_SESSION['verified'] === '1'): ?>
     <header>
       <i class="fas fa-bus"></i>
@@ -74,40 +118,59 @@
 
     <main>
       <div id="bookings">
-       <form method="POST" action="user_dashboard.php">
-          <h3>Book a Seat</h3>
-         <select name="type">
-           <option disabled selected hidden>Type</option>
-           <option>Leaving Campus</option>
-           <option>Returning to Campus</option>
-         </select>
+        <!-- if all seats are taken, display a sorry statement
+        else if user is booked, show a cancel booking button 
+        else show booking form -->
+        <?php if($_SESSION['seatsAvailable'] < 1): ?>
+            <h2 style="color: #923d30;padding: 0.8rem; width: 70%; text-align:center;margin: 40vh auto;font-family: sans-serif;">Sorry, booking is closed</h2>
+        <?php elseif($_SESSION['booked'] === true): ?>
+          <form method="GET" action="user_dashboard.php">
+            <button style="background-color: #923d30; color: white;padding: 0.8rem; width: 70%; text-align:center;margin: 40vh auto; cursor: pointer" name="cancel" value="<?php echo $_SESSION['user'] ?>">Cancel Booking</button>
+          </form>
+        <?php else: ?>
+         <form method="GET" action="user_dashboard.php">
+            <!-- <h2 style="text-align: center;">Book a Seat</h2> -->
+            <h3><?php echo $_SESSION['seatsAvailable']; ?> Seats left to book</h3>
 
-         <select name="day">
-           <option disabled selected hidden>Select Day</option>
-           <option>Monday</option>
-           <option>Tuesday</option>
-           <option>Wednesday</option>
-           <option>Thursday</option>
-           <option>Friday</option>
-           <option>Saturday</option>
-           <option>Sunday</option>
-         </select>
+           <select name="type" required>
+             <option disabled selected hidden>Type</option>
+             <option>From Ashesi</option>
+             <option>To Ashesi</option>
+           </select>
 
-         <select name="time">
-           <option disabled selected hidden>Select Time</option>
-           <option>1pm</option>
-           <option>2pm</option>
-           <option>2pm</option>
-         </select>
+           <select name="location" required>
+             <option disabled selected hidden>Location</option>
+             <option value="Kwabenya">Kwabenya - 12 GHC</option>
+             <option value="Accra Mall">Accra Mall - 30 GHC</option>
+             <option value="Madina">Madina - 25 GHC</option>
+             <option value="Legon">Legon - 30 GHC</option>
+             <option value="Palace">Palace - 35 GHC</option>
+             <option value="Cantonments">Cantonments - 45 GHC</option>
+           </select>
 
-         <select name="payment_method">
-           <option disabled selected hidden>Payment Method</option>
-           <option>MoMo</option>
-           <option>Cash</option>
-         </select>
+           <select name="day" required>
+             <!-- From Ashesi -->
+             <option disabled selected hidden>Day</option>
+             <option>Friday</option>
+             <option>Saturday</option>
+             <option>Sunday</option>
+           </select>
 
-         <button type="submit" name="book">book</button>
-       </form>
+           <select name="time" required>
+             <option disabled selected hidden>Time</option>
+           </select>
+      
+           <select name="payment_method" required >
+             <option disabled selected hidden>Payment Method</option>
+             <option>MoMo</option>
+             <option>Cash</option>
+           </select>
+
+           <input type="text" name="price" placeholder="Price" required hidden>
+      
+           <button type="submit" name="book">book</button>
+         </form>
+        <?php endif ?>
       </div>
 
       <div id="feedback">
